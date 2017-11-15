@@ -1,3 +1,4 @@
 .Rhistory
 vendor/
 composer.phar
+config.php
