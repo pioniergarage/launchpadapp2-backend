@@ -22,7 +22,7 @@ use Medoo\Medoo;
 
 // Check whether opened or closed.
 // Return {"state":"0", "opensince":"{datetime}"} when closed and {"state":"1", "opensince":""} when opened.
-$app->get('/ampelstate', function ($request, $response, $args) {
+$app->get('/openstate', function ($request, $response, $args) {
     $data = db()->query("SELECT * FROM opening_times ORDER BY id DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
     if ($data["close_at"] != null) {
         $return = array("state" => "0", "opensince" => "");
@@ -36,7 +36,7 @@ $app->get('/ampelstate', function ($request, $response, $args) {
 
 // Trigger change of the opened/closed state. Max. execution rate is 5sec.
 // Return "successto0" when closed and "successto1" when opened.
-$app->get('/ampelchange', function ($request, $response, $args) {
+$app->get('/openchange', function ($request, $response, $args) {
     // Get Last entry.
     $lastEntry = db()->query("SELECT * FROM opening_times ORDER BY id DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
     if ($lastEntry["close_at"] == null) {
