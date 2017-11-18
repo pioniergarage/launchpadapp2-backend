@@ -48,6 +48,13 @@ $app->get('/ampelchange', function ($request, $response, $args) {
     }
 });
 
+// Get the time frames of the open state for today.
+$app->get('/opentoday', function ($request, $response, $args) {
+    // Get all entries that where opened or closed today.
+    $todaysEntries = db()->query("SELECT * FROM opening_times WHERE open_at >= CURDATE() OR close_at >= CURDATE()")->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($todaysEntries);
+});
+
 // END of queries.
 
 $app->run();
