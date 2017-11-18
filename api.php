@@ -21,13 +21,15 @@ use Medoo\Medoo;
 // START of queries:
 
 // Check whether opened or closed.
-// Return "0" when closed and "1" when opened.
+// Return {"state":"0", "opensince":"{datetime}"} when closed and {"state":"1", "opensince":""} when opened.
 $app->get('/ampelstate', function ($request, $response, $args) {
     $data = db()->query("SELECT * FROM opening_times ORDER BY id DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
     if ($data["close_at"] != null) {
-        echo json_encode("0");
+        $return = array("state" => "0", "opensince" => "");
+        echo json_encode($return);
     } else if ($data["close_at"] == null) {
-        echo json_encode("1");
+        $return = array("state" => "1", "opensince" => $data["open_at"]);
+        echo json_encode($return);
     }
     
 });
@@ -40,11 +42,13 @@ $app->get('/ampelchange', function ($request, $response, $args) {
     if ($lastEntry["close_at"] == null) {
         // When last entry is open -> close it and return successto0
         db()->query("UPDATE opening_times SET close_at = CURRENT_TIMESTAMP WHERE id = :id", [":id" => $lastEntry["id"]]);
-        echo json_encode("successto0");
+        $return = array("state" => "success", "changedTo" => "0");
+        echo json_encode($return);
     } else if ($lastEntry["close_at"] != null) {
         // When last entry is closed -> open new entry and return successto1
         db()->query("INSERT INTO opening_times (open_at) VALUES (CURRENT_TIMESTAMP)");
-        echo json_encode("successto1");
+        $return = array("state" => "success", "changedTo" => "1");
+        echo json_encode($return);
     }
 });
 
