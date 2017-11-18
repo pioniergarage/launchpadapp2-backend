@@ -55,6 +55,13 @@ $app->get('/opentoday', function ($request, $response, $args) {
     echo json_encode($todaysEntries);
 });
 
+// Get the time frames of the open state for the last month.
+$app->get('/openmonth', function ($request, $response, $args) {
+    // Get all entries that where opened or closed in the last month.
+    $monthsEntries = db()->query("SELECT * FROM opening_times WHERE open_at >= (CURRENT_TIMESTAMP - INTERVAL 1 MONTH) OR close_at >= (CURRENT_TIMESTAMP - INTERVAL 1 MONTH)")->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($monthsEntries);
+});
+
 // END of queries.
 
 $app->run();
