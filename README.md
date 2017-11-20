@@ -18,9 +18,11 @@ Return: {"state":"[0/1]", "opensince":"[datetime]"}
 
 
 
-**GET** `/openchange`
+**POST** `/openchange`
 
 Triggers change of the open/close state. (Only every 3 seconds executable)
+
+Require api key to be postet in the body: {"key": "[a key]"}
 
 Return: {"state":"[success/error]", "changedTo":"[0/1/errorMessage]"}
 
