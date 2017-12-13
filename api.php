@@ -108,6 +108,34 @@ $app->get('/openmonth', function ($request, $response, $args) {
     echo json_encode($monthsEntries);
 });
 
+$app->post('/addTrackedMac', function($request, $response) {
+    $data = $request->getParsedBody();
+    $macHash = $data['macHash'];
+
+    $exec = db()->query("UPDATE presence_tracking SET updated_at = CURRENT_TIMESTAMP WHERE macHash = :macHash", [":macHash" => $macHash]);
+    $isUpdated = $exec->rowCount();
+    if ($isUpdated) {
+        echo json_encode("success");
+    } else if (!$isUpdated) {
+        $exec = db()->query("INSERT INTO presence_tracking (macHash, created_at, updated_at) VALUES (:macHash, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", [":macHash" => $macHash]);
+        $isInserted = $exec->rowCount();
+        if ($isInserted) {
+            echo json_encode("success");
+        } else {
+            echo json_encode("fail");
+        }
+    }
+});
+
+$app->get('/getRecentMacs', function($request, $response, $args) {
+    $data = db()->select("presence_tracking", [
+        "macHash",
+        "created_at",
+        "updated_at"
+    ]);
+    echo json_encode($data);
+});
+
 // END of queries.
 
 $app->run();
