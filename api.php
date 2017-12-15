@@ -31,6 +31,28 @@ $app->add(function ($req, $res, $next) {
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
 
+//AUTH-MIDDLEWARE
+$app->add(function ($request, $response, $next) {
+    $tokenAuth = $request->getHeaders();
+    $receivedToken = $tokenAuth["HTTP_AUTHORIZATION"][0];
+
+    $path = $request->getUri()->getPath();
+
+    if (($path == "openchange") || ($path == "addTrackedMac")) {
+        require 'config.php';
+        if ($receivedToken == $apikey) {
+            $newresponse = $next($request, $response);
+        } else {
+            $newresponse = $response->withStatus(401);
+        }
+    } else {
+        $newresponse = $next($request, $response);
+    }
+	
+	return $newresponse;
+});
+
+
 // START of queries:
 
 // Check whether opened or closed.
@@ -51,45 +73,37 @@ $app->get('/openstate', function ($request, $response, $args) {
 // Return "successto0" when closed and "successto1" when opened.
 // Require api key to be postet {"key": "{a key}"}
 $app->post('/openchange', function ($request, $response) {
-    $verification = ""; // input a key used for verification
-    $data = $request->getParsedBody();
-    $apikey =  filter_var($data['key'], FILTER_SANITIZE_STRING);
-    if ($apikey == $verification) {
-        // Get Last entry.
-        $lastEntry = db()->query("SELECT * FROM opening_times ORDER BY id DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
+
+    // Get Last entry.
+    $lastEntry = db()->query("SELECT * FROM opening_times ORDER BY id DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
     
-        // Getting the time in seconds since last change
-        $timeSinceLastChange;
+    // Getting the time in seconds since last change
+    $timeSinceLastChange;
+    if ($lastEntry["close_at"] == null) {
+        $timeSinceLastChange = db()->query("SELECT TIMESTAMPDIFF(SECOND, open_at, NOW()) FROM `opening_times` WHERE id = :id", [":id" => $lastEntry["id"]])->fetch(PDO::FETCH_ASSOC);
+        $timeSinceLastChange = $timeSinceLastChange["TIMESTAMPDIFF(SECOND, open_at, NOW())"];
+    } else if ($lastEntry["close_at"] != null) {
+        $timeSinceLastChange = db()->query("SELECT TIMESTAMPDIFF(SECOND, close_at, NOW()) FROM `opening_times` WHERE id = :id", [":id" => $lastEntry["id"]])->fetch(PDO::FETCH_ASSOC);
+        $timeSinceLastChange = $timeSinceLastChange["TIMESTAMPDIFF(SECOND, close_at, NOW())"];
+    }
+    
+    if (intval($timeSinceLastChange) >= 3) {
+        // When the last chang had been more than 3 seconds ago
         if ($lastEntry["close_at"] == null) {
-            $timeSinceLastChange = db()->query("SELECT TIMESTAMPDIFF(SECOND, open_at, NOW()) FROM `opening_times` WHERE id = :id", [":id" => $lastEntry["id"]])->fetch(PDO::FETCH_ASSOC);
-            $timeSinceLastChange = $timeSinceLastChange["TIMESTAMPDIFF(SECOND, open_at, NOW())"];
+            // When last entry is open -> close it and return successto0
+            db()->query("UPDATE opening_times SET close_at = CURRENT_TIMESTAMP WHERE id = :id", [":id" => $lastEntry["id"]]);
+            $return = array("state" => "success", "changedTo" => "0");
+            echo json_encode($return);
         } else if ($lastEntry["close_at"] != null) {
-            $timeSinceLastChange = db()->query("SELECT TIMESTAMPDIFF(SECOND, close_at, NOW()) FROM `opening_times` WHERE id = :id", [":id" => $lastEntry["id"]])->fetch(PDO::FETCH_ASSOC);
-            $timeSinceLastChange = $timeSinceLastChange["TIMESTAMPDIFF(SECOND, close_at, NOW())"];
-        }
-    
-        if (intval($timeSinceLastChange) >= 3) {
-            // When the last chang had been more than 3 seconds ago
-            if ($lastEntry["close_at"] == null) {
-                // When last entry is open -> close it and return successto0
-                db()->query("UPDATE opening_times SET close_at = CURRENT_TIMESTAMP WHERE id = :id", [":id" => $lastEntry["id"]]);
-                $return = array("state" => "success", "changedTo" => "0");
-                echo json_encode($return);
-            } else if ($lastEntry["close_at"] != null) {
-                // When last entry is closed -> open new entry and return successto1
-                db()->query("INSERT INTO opening_times (open_at) VALUES (CURRENT_TIMESTAMP)");
-                $return = array("state" => "success", "changedTo" => "1");
-                echo json_encode($return);
-            }
-    
-        } else {
-            // Return Error
-            $return = array("state" => "error", "changedTo" => "no change - to early");
+            // When last entry is closed -> open new entry and return successto1
+            db()->query("INSERT INTO opening_times (open_at) VALUES (CURRENT_TIMESTAMP)");
+            $return = array("state" => "success", "changedTo" => "1");
             echo json_encode($return);
         }
+    
     } else {
         // Return Error
-        $return = array("state" => "error", "changedTo" => "no change - access denied");
+        $return = array("state" => "error", "changedTo" => "no change - to early");
         echo json_encode($return);
     }
 });
