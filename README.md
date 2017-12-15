@@ -57,4 +57,8 @@ Returns all tracked mac hashes.
 Return: [{"macHash":"885","created_at":"2017-11-17 23:11:17","updated_at":"2017-11-17 23:13:36"}, ...]
 
 
+## Private API access
+Requests with (auth) are part of the private API. To use them you need to send an authorization key in the request header: {"Authorization": "[the key]"}.
+
+
 [Composer]: <https://getcomposer.org/doc/00-intro.md>
