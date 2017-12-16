@@ -38,7 +38,7 @@ $app->add(function ($request, $response, $next) {
 
     $path = $request->getUri()->getPath();
 
-    if (($path == "openchange") || ($path == "addTrackedMac")) {
+    if ((strpos($path,"openchange") !== false) || (strpos($path,"addTrackedMac") !== false)) {
         require 'config.php';
         if ($receivedToken == $apikey) {
             $newresponse = $next($request, $response);
@@ -48,7 +48,7 @@ $app->add(function ($request, $response, $next) {
     } else {
         $newresponse = $next($request, $response);
     }
-	
+    
 	return $newresponse;
 });
 
