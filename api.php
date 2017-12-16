@@ -150,6 +150,32 @@ $app->get('/getRecentMacs', function($request, $response, $args) {
     echo json_encode($data);
 });
 
+
+// USER HANDLING
+
+$app->post('/user/newuser', function($request, $response) {
+    $data = $request->getParsedBody();
+    $macHash = $data['macHash'];
+    $name = $data['name'];
+    $role = $data['role'];
+    $imageRef = $data['imageRef'];
+
+    if (($macHash != "") && ($name != "") && ($role != "") && ($imageRef != "")) {
+        db()->insert('users', [
+            'macHash' => $macHash,
+            'name' => $name,
+            'role' => $role,
+            'imageRef' => $imageRef
+        ]);
+    }
+});
+
+$app->get('/user/activeUsers', function($request, $response) {
+    $data = db()->query("SELECT users.name, users.role, users.imageRef FROM users INNER JOIN presence_tracking ON presence_tracking.macHash = users.macHash WHERE presence_tracking.updated_at >= (CURRENT_TIMESTAMP - INTERVAL 15 MINUTE)")->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($data);
+});
+
 // END of queries.
 
 $app->run();
