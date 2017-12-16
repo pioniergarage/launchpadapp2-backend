@@ -126,6 +126,11 @@ $app->post('/addTrackedMac', function($request, $response) {
     $data = $request->getParsedBody();
     $macHash = $data['macHash'];
 
+    if ($macHash == "") {
+        $newresponse = $response->withStatus(400);
+        return $newresponse;
+    }
+
     $exec = db()->query("UPDATE presence_tracking SET updated_at = CURRENT_TIMESTAMP WHERE macHash = :macHash", [":macHash" => $macHash]);
     $isUpdated = $exec->rowCount();
     if ($isUpdated) {
@@ -167,6 +172,9 @@ $app->post('/user/newuser', function($request, $response) {
             'role' => $role,
             'imageRef' => $imageRef
         ]);
+    } else {
+        $newresponse = $response->withStatus(400);
+        return $newresponse;
     }
 });
 
