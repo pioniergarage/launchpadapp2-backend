@@ -50,11 +50,29 @@ Require hash of mac to be posted in the body: {"macHash": "[a mac hash]"}
 Return: "[success/fail]"
 
 
-**GET** `/getRecentMacs`
+**GET** `/getRecentMacs` (deprecated)
 
 Returns all tracked mac hashes.
 
 Return: [{"macHash":"885","created_at":"2017-11-17 23:11:17","updated_at":"2017-11-17 23:13:36"}, ...]
+
+
+**POST** `/user/newuser`
+
+Register a new profile.
+
+Require the following values to be included in the body: 
+{"macHash": "[a mac hash]", "name":"[a name]", "role":"[a role]", "imageRef":"[imageRef]"}
+
+Return: 200/400
+
+
+
+**GET** `/user/activeUsers`
+
+Returns user details of those users who have been tracked in the last 15min.
+
+Return: [{"name":"[a name]","role":"[a role]","imageRef":"[an image ref]"}, ...]
 
 
 ## Private API access
