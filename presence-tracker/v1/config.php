@@ -6,7 +6,7 @@
  */
 
     //api token for secured api requests
-    $token = 'N^jsA#oco,y.(qS1-/>xGXVQ*eEzN445R.F?Tpn@3`*{@oGFy~,1)q)Sv4Fr';
+    $token = 'aszfljgnv';
 
     //auth data for database
     $db_ip = 'localhost';
