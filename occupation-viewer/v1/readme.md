@@ -5,7 +5,7 @@
     - **Output:** {"status": "opened"} or {"status": "closed"}
     - **Description:** triggered by the arduino, needs a security token, deletes database entries where the opening time was < 10min
 
-1. **toggle open state (opened/closed)**
+1. **set the state to opened or closed**
     - **URL:** http://../?changeStatus=<open/close>
     - **Parameters:** "token" as push variable, value for the get variable "changeStatus"
     - **Output:** {"success": <true/false>}
