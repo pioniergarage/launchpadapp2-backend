@@ -44,8 +44,8 @@
             'orga_name' => $orga_name
         );
         $i = 1;
-        while (isset($_POST["mac" . $i])) {
-            $variables["mac" . $i] = md5(strtolower($_POST["mac" . $i]));
+        while (isset($_POST["mac" . $i]) && !empty($_POST["mac" . $i])) {
+            $variables["mac" . $i] = md5(strtolower(str_replace("-", ":", $_POST["mac" . $i])));
             $i++;
         }
 
@@ -92,7 +92,6 @@
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/material-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <link rel="stylesheet" href="assets/css/styles.min.css">
 </head>
 
@@ -156,7 +155,7 @@
                         document.getElementById("mac1").value = xmlhttp.responseText;
                     }
                 };
-                xmlhttp.open("GET", "http://100.84.47.90", false);
+                xmlhttp.open("GET", "http://192.168.1.114", false);
                 xmlhttp.send();
             </script>
             <div class="form-row">

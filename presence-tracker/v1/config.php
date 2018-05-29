@@ -6,15 +6,18 @@
  */
 
     //api token for secured api requests
-    $token = 'aszfljgnv';
+    $token = '<api_token>';
 
     //auth data for database
-    $db_ip = 'localhost';
-    $db_user = 'launchpadapp';
-    $db_pwd = 'HiUzoPiM6rCBqZhC';
-    $db_name = 'launchpadapp';
+    $db_ip = '<mysql_ip>';
+    $db_user = '<mysql_username>';
+    $db_pwd = '<mysql_password>';
+    $db_name = '<mysql_db_name>';
 
     //enables debug mode
     $debug = true;
+
+    //timeout interval in minutes
+    $timeout = 25;
 
 ?>

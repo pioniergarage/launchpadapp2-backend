@@ -1,4 +1,4 @@
 <?php 
 
-	$api_url = "http://link/zur/api/schnittstelle/";
+	$api_url = "<api_url>";
 ?>
